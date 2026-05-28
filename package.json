@@ -1,0 +1,79 @@
+{
+  "name": "ai-shell-assistant",
+  "version": "0.1.0",
+  "description": "Windows desktop Linux AI command-line assistant.",
+  "main": "dist/main/index.js",
+  "bin": {
+    "ai-ssh": "dist/cli/ai-ssh.js"
+  },
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -k \"npm:dev:renderer\" \"npm:dev:electron\"",
+    "dev:renderer": "vite --config src/renderer/vite.config.ts --host 127.0.0.1",
+    "dev:electron": "wait-on http://127.0.0.1:5173 && npm run build:main && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 electron .",
+    "build": "npm run lint && npm run build:main && npm run build:cli && vite build --config src/renderer/vite.config.ts",
+    "build:main": "tsc -p tsconfig.main.json",
+    "build:cli": "tsc -p tsconfig.cli.json",
+    "lint": "tsc --noEmit",
+    "ai-ssh": "node dist/cli/ai-ssh.js",
+    "pack": "npm run build && cross-env ELECTRON_BUILDER_CACHE=.npm-cache/electron-builder-cache electron-builder --win --x64 --dir",
+    "dist": "npm run build && cross-env ELECTRON_BUILDER_CACHE=.npm-cache/electron-builder-cache electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "com.ai-shell-assistant.desktop",
+    "productName": "AI Shell Assistant",
+    "asar": true,
+    "npmRebuild": false,
+    "electronDist": "node_modules/electron/dist",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "win": {
+      "signAndEditExecutable": false,
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "AI Shell Assistant",
+      "artifactName": "AI-Shell-Assistant-${version}-Setup-${arch}.${ext}"
+    },
+    "publish": null
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "ssh2": "^1.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.10",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@types/ssh2": "^1.15.5",
+    "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^31.7.7",
+    "electron-builder": "^26.8.1",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.7",
+    "wait-on": "^8.0.1"
+  }
+}
